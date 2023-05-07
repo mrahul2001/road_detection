@@ -1,0 +1,49 @@
+clc
+clear all
+close all
+
+%Histogram Equalization using Function
+I=imread('football.jpg');
+imshow(I)
+HSV = rgb2hsv(I);
+Heq = histeq(HSV(:,:,3));
+HSV(:,:,3) = Heq;
+RGB = hsv2rgb(HSV);
+figure
+imshow(RGB)
+
+%Histogram Equalization using Algorithm
+A=rgb2hsv(I);
+II=A(:,:,3);
+II=II*255;
+[M N]=size(II);
+Frequency=zeros(1,256);
+for i = 1:M
+    for j = 1:N
+        Frequency(II(i,j))=Frequency(II(i,j))+1;
+    end
+end
+PDF=Frequency/(M*N);
+
+CDF=zeros(1,256);
+CDF(1)=PDF(1);
+
+for i=2:256
+    CDF(i)=CDF(i-1)+PDF(i);
+end
+CDF=round(255*CDF);
+Equalized_Image=zeros(M);
+for i=1:M
+    for j=1:N
+        T=(I(i,j)+1);
+        Equalized_Image(i,j)=CDF(T);
+    end
+end
+Equalized_Image=uint8(Equalized_Image);
+Eq=imhist(Equalized_Image);
+
+A(:,:,3)=Equalized_Image;
+A_RGB = hsv2rgb(A);
+figure
+imshow()
+title('Image after Histogram Equalization Using Algorithm','FontSize',18)
